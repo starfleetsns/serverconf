@@ -1,0 +1,2 @@
+NFS: controllare che il default venga modificato nel modo giusto
+TFTP: andava configurato?

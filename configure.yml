@@ -1,0 +1,34 @@
+---
+- hosts:
+  - utopia
+  - farpoint
+
+  tasks:
+  - name: Install nfs file server
+    apt: pkg=nfs-kernel-server state=installed update_cache=true
+    notify:
+    - start nfs
+  - name: configure nfs default
+    replace: dest=/etc/default/nfs-kernel-server regex='^RPCMOUNTDOPTS.*$' replace='RPCMOUNTDOPTS="--manage-gids --port 32767"' backup=yes
+    notify:
+    - restart nfs
+  - name: configure nfs export
+    copy: src=nfs/exports.{{ inventory_hostname }} dest=/etc/exports backup=yes owner=root group=root mode=0644
+    notify:
+    - restart nfs
+  - name: install tftpd
+    apt: pkg=tftpd-hpa state=installed update_cache=true
+    notify:
+    - start tftpd
+    
+
+
+
+  handlers:
+  - name: start nfs
+    service: name=nfs-kernel-server state=started
+  - name: restart nfs
+    service: name=nfs-kernel-server state=restarted
+  - name: start tftpd
+    service: name=tftpd-hpa state=started
+
