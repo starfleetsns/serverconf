@@ -1,2 +1,4 @@
 NFS: controllare che il default venga modificato nel modo giusto
 TFTP: andava configurato?
+DHCP: il file /etc/dhcp/dhcpupdatekey.conf va caricato da un'altra
+      fonte perché contiene password

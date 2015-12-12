@@ -52,7 +52,7 @@
     notify:
     - start tftpd
   - name: install dhcpd
-    apt: pkg=isc-dhcp-server
+    apt: pkg=isc-dhcp-server state=installed update_cache=true
     notify:
     - start dhcpd
   - name: configure dhcpd default
@@ -73,8 +73,25 @@
     copy: src=dhcp/virtual.conf dest=/etc/dhcp/groups/virtual.conf owner=root group=root mode=0644
     notify:
     - restart dhcpd
-  
-    
+  - name: install cups
+    apt: pkg=cups state=installed update_cache=true 
+    notify:
+    - start cups
+  - name: copy cups cupsd.conf
+    copy: src=cups/cupsd.conf dest=/etc/cups/cupsd.conf owner=root group=root mode=0644
+    notify:
+    - restart cups
+  - name: copy cups printers.conf
+    copy: src=cups/printers.conf dest=/etc/cups/printers.conf owner=root group=lp mode=0600
+    notify:
+    - restart cups
+  - name: create cups ppd directory
+    file: path=/etc/cups/ppd state=directory owner=root group=lp mode=755
+  - name: copy cups trespolo ppd
+    copy: src=cups/trespolo.ppd dest=/etc/cups/ppd/trespolo.ppd owner=root group=root mode=0644
+    notify:
+    - restart cups
+
 
 
 
@@ -89,4 +106,7 @@
     service: name=isc-dhcp-server state=started
   - name: restart dhcpd
     service: name=isc-dhcp-server state=restarted
-
+  - name: start cups
+    service: name=cups state=started
+  - name: restart cups
+    service: name=cups state=restarted
