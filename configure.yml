@@ -35,6 +35,8 @@
   - name: install basic packets
     apt: pkg={{ item }} state=installed update_cache=true
     with_items: basic_packets
+  - name: copy resolv.conf
+    copy: src=resolv.conf dest=/etc/resolv.conf owner=root group=root mode=0644
   - name: Install nfs file server
     apt: pkg=nfs-kernel-server state=installed update_cache=true
     notify:
