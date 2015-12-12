@@ -51,6 +51,29 @@
     apt: pkg=tftpd-hpa state=installed update_cache=true
     notify:
     - start tftpd
+  - name: install dhcpd
+    apt: pkg=isc-dhcp-server
+    notify:
+    - start dhcpd
+  - name: configure dhcpd default
+    replace: dest=/etc/default/isc-dhcp-server regex='^INTERFACES=.*$' replace='INTERFACES="etbraula etbrvirt" backup=yes
+    notify:
+    - restart dhcpd
+  - name: configure dhcpd dhcpd.conf
+    copy: src=dhcp/dhcpd.conf.{{ inventory_hostname }} dest=/etc/dhcp/dhcpd.conf owner=root group=root mode=0644 backup=yes
+    notify:
+    - restart dhcpd
+  - name: create dhcpd groups directory
+    file: path=/etc/dhcp/groups state=directory owner=root group=root mode=755
+  - name: configure dhcpd client.conf
+    copy: src=dhcp/client.conf dest=/etc/dhcp/groups/client.conf owner=root group=root mode=0644
+    notify:
+    - restart dhcpd
+  - name: configure dhcpd virtual.conf
+    copy: src=dhcp/virtual.conf dest=/etc/dhcp/groups/virtual.conf owner=root group=root mode=0644
+    notify:
+    - restart dhcpd
+  
     
 
 
@@ -62,4 +85,8 @@
     service: name=nfs-kernel-server state=restarted
   - name: start tftpd
     service: name=tftpd-hpa state=started
+  - name: start dhcpd
+    service: name=isc-dhcp-server state=started
+  - name: restart dhcpd
+    service: name=isc-dhcp-server state=restarted
 

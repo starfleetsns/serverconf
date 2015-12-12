@@ -1,0 +1,91 @@
+#
+# Sample configuration file for ISC dhcpd for Debian
+#
+#
+
+# The ddns-updates-style parameter controls whether or not the server will
+# attempt to do a DNS update when a lease is confirmed. We default to the
+# behavior of the version 2 packages ('none', since DHCP v2 didn't
+# have support for DDNS.)
+ddns-update-style none;
+update-static-leases off;
+
+#include "/etc/dhcp/dhcpupdatekey.conf";
+
+#zone dhcp.starfleet.sns.it {
+#     primary ns1.starfleet.sns.it;
+#     key dhcpupdate;
+#}
+
+# option definitions common to all supported networks...
+option domain-name "starfleet.sns.it";
+#option domain-name-servers ns1.example.org, ns2.example.org;
+
+default-lease-time 600;
+max-lease-time 7200;
+
+# If this DHCP server is the official DHCP server for the local
+# network, the authoritative directive should be uncommented.
+#authoritative;
+
+# Use this to send dhcp log messages to a different log file (you also
+# have to hack syslog.conf to complete the redirection).
+log-facility local7;
+
+failover peer "warpHA" {
+         primary;
+         address 192.168.80.3;
+         port 519;
+         peer address 192.168.80.4;
+         peer port 520;
+         max-response-delay 60;
+         max-unacked-updates 10;
+         mclt 3600;
+         split 128;
+         load balance max seconds 3;
+}
+
+
+subnet 192.168.80.0 netmask 255.255.255.0 {
+       authoritative;
+       default-lease-time 600;
+       max-lease-time 1200;
+       option routers 192.168.80.1;
+       option subnet-mask 255.255.255.0;
+       option domain-name "starfleet.sns.it uz.sns.it sns.it";
+       option domain-name-servers 192.168.80.1, 192.168.80.2;
+       next-server 192.168.80.1;
+       filename "pxelinux.0";
+       pool {
+       	    failover peer "warpHA";
+       	    range 192.168.80.140 192.168.80.200;
+       }
+#       ddns-domainname "dhcp.starfleet.sns.it";
+#       ddns-rev-domainname "80.168.192.in-addr.arpa";
+#       ddns-updates true;
+}
+
+subnet 192.168.81.0 netmask 255.255.255.0 {
+       authoritative;
+       default-lease-time 600;
+       max-lease-time 1200;
+       option routers 192.168.81.1;
+       option subnet-mask 255.255.255.0;
+       option domain-name "starfleet.sns.it uz.sns.it sns.it";
+       option domain-name-servers 192.168.80.1, 192.168.80.2;
+       next-server utopia.starfleet.sns.it;
+       filename "pxelinux.0";
+       pool {
+       	    failover peer "warpHA";
+       	    range 192.168.81.140 192.168.81.200;
+       }
+}
+
+include "/etc/dhcp/groups/client.conf";
+include "/etc/dhcp/groups/virtual.conf";
+
+subnet 192.168.8.0 netmask 255.255.255.0 {
+       not authoritative;
+       ignore booting;
+       ddns-updates false;
+}
