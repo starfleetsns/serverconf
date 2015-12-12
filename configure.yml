@@ -40,8 +40,6 @@
     copy: src=resolv.conf dest=/etc/resolv.conf owner=root group=root mode=0644
   - name: Install nfs file server
     apt: pkg=nfs-kernel-server state=installed update_cache=true
-    notify:
-    - start nfs
   - name: configure nfs default
     replace: dest=/etc/default/nfs-kernel-server regex='^RPCMOUNTDOPTS.*$' replace='RPCMOUNTDOPTS="--manage-gids --port 32767"' backup=yes
     notify:
@@ -56,8 +54,6 @@
     - start tftpd
   - name: install dhcpd
     apt: pkg=isc-dhcp-server state=installed update_cache=true
-    notify:
-    - start dhcpd
   - name: configure dhcpd default
     replace: dest=/etc/default/isc-dhcp-server regex='^INTERFACES=.*$' replace='INTERFACES="etbraula etbrvirt" backup=yes
     notify:
@@ -78,8 +74,6 @@
     - restart dhcpd
   - name: install cups
     apt: pkg=cups state=installed update_cache=true 
-    notify:
-    - start cups
   - name: copy cups cupsd.conf
     copy: src=cups/cupsd.conf dest=/etc/cups/cupsd.conf owner=root group=root mode=0644
     notify:
