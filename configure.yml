@@ -91,6 +91,21 @@
     copy: src=cups/trespolo.ppd dest=/etc/cups/ppd/trespolo.ppd owner=root group=root mode=0644
     notify:
     - restart cups
+  - name: install bird
+    apt: pkg=bird state=installed update_cache=true
+  - name: install bird6
+    apt: pkg=bird6 state=installed update_cache=true
+  - name: copy bird routerid
+    copy: src=bird/routerid.conf.{{ inventory_hostname }} dest=/etc/bird/routerid.conf owner=bird group=bird mode=0640
+  - name: copy bird (4) bird.conf
+    copy: src=bird/bird.conf dest=/etc/bird/bird.conf owner=bird group=bird mode=0640
+    notify:
+    - restart bird
+  - name: copy bird6 bird6.conf
+    copy: src=bird/bird6.conf dest=/etc/bird/bird6.conf owner=bird group=bird mode=0640
+    notify:
+    - restart bird6
+    
 
 
 
@@ -110,3 +125,7 @@
     service: name=cups state=started
   - name: restart cups
     service: name=cups state=restarted
+  - name: restart bird
+    service: name=bird state=restarted
+  - name: restart bird6
+    service: name=bird6 state=restarted
