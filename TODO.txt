@@ -1,0 +1,7 @@
+monit
+postfix
+mailman
+apache2
+virt-manager
+samba
+
