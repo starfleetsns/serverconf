@@ -2,8 +2,39 @@
 - hosts:
   - utopia
   - farpoint
+  vars:
+    basic_packets:
+    - "htop"
+    - "rsync"
+    - "bmon"
+    - "bash-completion"
+    - "tshark"
+    - "tcpdump"
+    - "bridge-utils"
+    - "aptitude"
+    - "build-essential"
+    - "ansible"
+    - "dsh"
+    - "emacs"
+    - "etckeeper"
+    - "git"
+    - "ipython"
+    - "ipython3"
+    - "krb5-clients"
+    - "links2"
+    - "nmap"
+    - "parted"
+    - "screenie"
+    - "vim"
 
   tasks:
+  - name: Copy bashrc
+    copy: src=home/bashrc dest=/root/.bashrc owner=root group=root mode=0644
+  - name: Copy ssh authorized_keys
+    copy: src=home/authorized_keys dest=/root/.ssh/authorized_keys owner=root group=root mode=0644
+  - name: install basic packets
+    apt: pkg={{ item }} state=installed update_cache=true
+    with_items: basic_packets
   - name: Install nfs file server
     apt: pkg=nfs-kernel-server state=installed update_cache=true
     notify:
